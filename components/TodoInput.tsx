@@ -1,17 +1,35 @@
 import React, { useState } from 'react'
 import { TextInput, View, StyleSheet } from 'react-native'
 import { Entypo } from '@expo/vector-icons';
-import { useAdmin } from '../Contexts/Todos'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { postTodo } from '@/api';
 
 const TodoInput = () => {
-    const { todos, setTodos} = useAdmin();
     const [value, setValue] = useState('');
     const handleInput = (text:string)=>{
         setValue(text)
     }
+
+    const queryClient = useQueryClient()
+    
+
+    const mutation = useMutation({
+        mutationFn: postTodo,
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['todos'] })
+        },
+    })
+
     const onSubmitted =()=>{
-        setTodos([...todos,value])
+        mutation.mutate({
+            id: Date.now(),
+            title: value,
+            completed:false,
+        })
+        setValue('')
     }
+
+    
 
 
   return (

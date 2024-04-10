@@ -1,38 +1,46 @@
+import { fetchTodos} from '@/api'
+import {  useQuery, useQueryClient} from '@tanstack/react-query'
 import React from 'react'
-import { View, Text, StyleSheet,FlatList, } from 'react-native/'
-import { useAdmin } from '../Contexts/Todos'
+import { View, Text, StyleSheet,FlatList, ActivityIndicator, TouchableOpacity} from 'react-native/'
 
 const TodoLists = () => {
-    const { todos} = useAdmin();
+
+    const query = useQuery({ queryKey: ['todos'], queryFn: fetchTodos })
+    const queryClient = useQueryClient()
+    
 
   return (
     <View style={styles.container}>
-        <View>
-            <FlatList
-                data={todos}
-                renderItem={({ item, index }) => (
-                    <View style={styles.listcon} key={index}>
-                        <View style={{width:'10%',}}>
-                            <View style={styles.mark}></View>
+        { !query.data? 
+            <ActivityIndicator size={'large'}/>
+            :
+            <View>
+                <FlatList
+                    data={query.data}
+                    renderItem={({ item}) => (
+                        <View style={styles.listcon} key={item.id}>
+                            <View style={{width:'10%',}}>
+                                <TouchableOpacity style={styles.mark} onPress={()=>{styles.mark.backgroundColor='#000'}}></TouchableOpacity>
+                            </View>
+                            <Text style={{fontSize:18, color:"#fff"}}>{item.title}</Text>
                         </View>
-                        <Text style={{fontSize:18, color:"#fff"}}>{item}</Text>
-                    </View>
-                )}
-                // keyExtractor={}
-                contentContainerStyle={{ rowGap: 0 }}
-            />
+                    )}
+                    // keyExtractor={}
+                    contentContainerStyle={{ rowGap: 0 }}
+                />
 
-            <View style={{backgroundColor:'#fff', width:'100%', height:.5,}}></View>
-            <View style={styles.filters}>
-                <Text style={{color:'#fff'}}>{ todos.length + ' Item Left'}</Text>
-                <View style={styles.innercon}>
-                    <Text style={{color:'#fff'}}>All</Text>
-                    <Text style={{color:'#fff'}}>Active</Text>
-                    <Text style={{color:'#fff'}}>completed</Text>
+                <View style={{backgroundColor:'#fff', width:'100%', height:.5,}}></View>
+                <View style={styles.filters}>
+                    <Text style={{color:'#fff'}}>{ query.data?.length + ' Item Left'}</Text>
+                    <View style={styles.innercon}>
+                        <Text style={{color:'#fff'}}>All</Text>
+                        <Text style={{color:'#fff'}}>Active</Text>
+                        <Text style={{color:'#fff'}}>completed</Text>
+                    </View>
+                    <Text style={{color:'#fff'}}>Completed</Text>
                 </View>
-                <Text style={{color:'#fff'}}>Completed</Text>
             </View>
-        </View>
+        }
     </View>
   )
 }
@@ -54,6 +62,7 @@ const styles= StyleSheet.create({
         borderWidth:1,
         borderColor:'#fff', 
         borderRadius:50,
+        backgroundColor:'transparent',
     },
     listcon:{
         width:'100%',

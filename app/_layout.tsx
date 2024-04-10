@@ -5,8 +5,11 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { useColorScheme } from '@/components/useColorScheme';
-import { AdminProvider } from "../Contexts/Todos"
-
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from '@tanstack/react-query'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -21,11 +24,15 @@ export {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+
+
 export default function RootLayout() {
+
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
+
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -47,22 +54,23 @@ export default function RootLayout() {
 
 export const unstable_settings = {
   // Ensure any route can link back to `/`
-  initialRouteName: "home",
+  initialRouteName: "index",
 };
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const queryClient = new QueryClient();
 
   return (
-    <AdminProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme} >
-          <Stack initialRouteName="home">
-            <Stack.Screen
-              name="home"
-            />
-          </Stack>
-      </ThemeProvider>
-    </AdminProvider>
+    <QueryClientProvider client={queryClient}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme} >
+            <Stack initialRouteName="index">
+              <Stack.Screen
+                name="index"
+              />
+            </Stack>
+        </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
